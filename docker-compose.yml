@@ -1,0 +1,20 @@
+services:
+  mariadb:
+    image: mariadb
+    container_name: concesiones_db
+    restart: always
+    env_file:
+      - ./.env
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: concesiones
+      MARIADB_USER: root
+      MARIADB_PASSWORD: root
+    ports:
+      - '3007:3306'
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./initdb:/docker-entrypoint-initdb.d
+
+volumes:
+  mariadb_data:
