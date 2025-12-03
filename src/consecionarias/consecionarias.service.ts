@@ -11,13 +11,11 @@ export class ConsecionariasService {
   constructor(
     @InjectRepository(Concesionaria)
     private readonly concesionariaRepo: Repository<Concesionaria>,
-  ) {}
-  async generarQr(idConcesionaria: number) {
-    const data = `concesionaria=${idConcesionaria}`;
+  ) { }
 
-    const qr = await QRCode.toDataURL(data);
-
-    return qr;
+  async generarQR(id: number): Promise<Buffer> {
+    const data = `concesionaria:${id}`;
+    return await QRCode.toBuffer(data);
   }
 
   async findOne(id: number) {

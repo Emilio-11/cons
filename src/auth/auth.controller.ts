@@ -25,7 +25,7 @@ interface Update {
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
   //Comentar en producciòn
 
   @Post('update')
@@ -90,9 +90,10 @@ export class AuthController {
   async googleCallback(@Req() req, @Res() res: Response) {
     const user = req.user;
 
-    if (user.needsPassword) {
+    if (user.neeneedsPassword) {
+
       return res.redirect(
-        `${process.env.FRONTEND_URL}/password?email=${user.correo}`,
+        `${process.env.FRONTEND_URL}/Password?email=${user.correo}`,
       );
     }
 

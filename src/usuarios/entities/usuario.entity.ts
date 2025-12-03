@@ -6,19 +6,20 @@ import {
   ManyToOne,
   JoinColumn,
   OneToMany,
+  PrimaryGeneratedColumn
 } from 'typeorm';
 import { TipoUsuario } from './tipoUsuario.entity';
 import { Reporte } from 'src/reportes/entities/reporte.entity';
 
 @Entity('Usuarios')
 export class Usuario {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
   id_usuario: number;
 
   @Column({ unique: true, length: 100 })
   correo_electronico: string;
 
-  @Column({ length: 100 })
+  @Column({ length: 100, nullable: true })
   contraseña: string;
 
   @ManyToOne(() => TipoUsuario, (tipo) => tipo.usuarios)

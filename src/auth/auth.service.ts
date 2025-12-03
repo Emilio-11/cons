@@ -25,7 +25,7 @@ export class AuthService {
     private readonly tipoUsuario: Repository<TipoUsuario>,
 
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
   // 1) Valida email/password
   async validateUser(user1: LoginDto): Promise<Usuario> {
@@ -111,7 +111,7 @@ export class AuthService {
       relations: ['tipoUsuario'],
     });
 
-    if (!user) {
+    if (!user || user.contraseña == null) {
       let id;
       if (email.endsWith('@pcpuma.acatlan.unam.mx')) {
         id = 2;
@@ -119,7 +119,9 @@ export class AuthService {
         id = 3;
       }
 
-      let user = await this.userRepo.save({ email, tipoUsuario: id });
+
+
+      let user = await this.userRepo.save({ correo_electronico: email, tipoUsuario: { id_tipoUsuario: id } });
 
       return { ...user, neeneedsPassword: true };
     }
