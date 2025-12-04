@@ -23,8 +23,9 @@ export class ReportesController {
   constructor(private readonly reportesService: ReportesService) {}
 
  
- 
+
 @Post()
+@UseGuards(AuthGuard('jwt'))
 @UseInterceptors(
   FileInterceptor("imagen", {
     storage: diskStorage({
@@ -41,16 +42,19 @@ async create(
   @Body() body,
   @UploadedFile() file: Express.Multer.File
 ) {
-  console.log("FILE >>>", file);
-  return this.reportesService.create(body, 15, file);//IMPORTANTE USARIO FIJO DEPENDE DEL ID QUE TENGA EN LA BASE DE DATOS  
+  const userId = req.user.sub;
+  if (!userId) {
+    throw new Error('No se recibió el ID del usuario');
+  }
+  return this.reportesService.create(body,userId,file);//IMPORTANTE USARIO FIJO DEPENDE DEL ID QUE TENGA EN LA BASE DE DATOS  
 }
 
 
 
  
-  @Get()
+  @Get('tipos')
+  @UseGuards(AuthGuard('jwt'))
   async buscar() {
-     
-    return await this.reportesService.findAllTipos();
+    return this.reportesService.findAllTipos();
   }
 }

@@ -1,10 +1,10 @@
 // tipo-reporte.entity.ts
-import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
+import { Entity, Column, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Reporte } from './reporte.entity';
 
 @Entity('tipo_Reporte')
 export class TipoReporte {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
   id_tipoReporte: number;
 
   @Column({ length: 50 })
