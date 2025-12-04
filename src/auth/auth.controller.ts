@@ -93,7 +93,7 @@ export class AuthController {
     if (user.neeneedsPassword) {
 
       return res.redirect(
-        `${process.env.FRONTEND_URL}/Password?email=${user.correo}`,
+        `${process.env.FRONTEND_URL}/Reportes/Password?email=${user.correo_electronico}`,
       );
     }
 

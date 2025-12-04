@@ -1,5 +1,5 @@
 // reporte.entity.ts
-import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn, PrimaryGeneratedColumn } from 'typeorm';
 import { TipoReporte } from './tipo-reporte.entity';
 import { Usuario } from 'src/usuarios/entities/usuario.entity';
 import { Estado } from './estado.entity';
@@ -7,7 +7,7 @@ import { Concesionaria } from 'src/consecionarias/entities/consecionaria.entity'
 
 @Entity('Reportes')
 export class Reporte {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
   id_Reporte: number;
 
   @ManyToOne(() => Usuario, (usuario) => usuario.reportes)

@@ -1,5 +1,7 @@
+CREATE DATA BASE caFES;
+
 CREATE TABLE tipo_usuario (
-    id_tipoUsuario INT PRIMARY KEY,
+    id_tipoUsuario INT PRIMARY KEY ,
     tipoUsuario VARCHAR(50) NOT NULL
 );
 CREATE TABLE Usuarios (
@@ -22,7 +24,7 @@ CREATE TABLE Consecionaria(
     numAutorizado VARCHAR(50) NOT NULL,
     dependencia VARCHAR(100) NOT NULL,
     localidad VARCHAR(200),
-    autorizado  VARCHAR(100) NOT NULL,
+    autorizado  VARCHAR(100) NOT NULL
     horario_atencion VARCHAR(100)
 );
 CREATE TABLE Reportes (
@@ -37,7 +39,7 @@ CREATE TABLE Reportes (
     FOREIGN KEY (usuario) REFERENCES Usuarios(id_usuario),
     FOREIGN KEY (tipoReporte) REFERENCES tipo_Reporte(id_tipoReporte),
     FOREIGN KEY (estado) REFERENCES Estado(id_Estado),
-    FOREIGN KEY (concesionaria) REFERENCES Consecionaria(id_Concesionaria)
+    FOREIGN KEY (concesionaria) REFERENCES Consecionaria(id_Concesionaria),
 );
 
 /*Introduccion de datos*/
@@ -45,21 +47,19 @@ CREATE TABLE Reportes (
 /*Tipos de usuario*/
 INSERT INTO tipo_usuario (id_tipoUsuario, tipoUsuario) VALUES
 (1, 'Administrador'),
-(2, 'Comunidad Fes'),
-(3, 'Externo');
+(2, 'Usuario');
 /*Tipos de reporte*/
 INSERT INTO tipo_Reporte (id_tipoReporte, tipoReporte) VALUES
 (1, 'Malas practicas de higiene'),
 (2, 'Comida en mal estado'),
 (3, 'Trato inadecuado'),
-(4, 'Precios injustos'),
-(5, 'Productos caducados'),
-(6, 'Malas condiciones en instalaciones'),
-(7, 'Uso de areas no designadas'),
-(8, 'Mal funcionamiento de maquinas expendedoras'),
-(9, 'Falta de seguridad y proteccion civil'),
+(4, 'Precios injustos');
+(5, 'Productos caducados');
+(6, 'Malas condiciones en instalaciones');
+(7, 'Uso de areas no designadas');
+(8, 'Mal funcionamiento de maquinas expendedoras');
+(9, 'Falta de seguridad y proteccion civil');
 (10, 'Porciones inadecuadas');
-
 /*Estados de reporte*/
 INSERT INTO Estado (id_Estado, estado) VALUES
 (1, 'Pendiente'),
@@ -87,7 +87,10 @@ INSERT INTO Consecionaria (id_Concesionaria, numAutorizado, dependencia, localid
 (16, '3278', 'Facultad de Estudios Superiores Acatlán', 'M', 'Alma Patricia Lemus Leyva', 'L-V 7:00-20:00; S 8:00-13:00'),
 (17, '3279', 'Facultad de Estudios Superiores Acatlán', 'M', 'José Carlos Pérez Ramírez', 'L-V 7:00-21:00; S 8:00-15:00'),
 (18, '3280', 'Facultad de Estudios Superiores Acatlán', 'M', 'Nicolás Vieyra González', 'L-V 7:00-20:00; S 8:00-13:00'),
-(19, '7029', 'Facultad de Estudios Superiores Acatlán', 'M', 'Saúl Lozano Gazga y Miguel Ángel Lozano Gazga', 'L-V 7:00-20:00; S 8:00-14:00');
+(19, '5006', 'UNAM','C','Propimex, S. de R.L de C.V','N/A')
+(20,'5023','UNAM','C','Bimbo, S.A. de C.V.','N/A'),
+(21,'5034','UNAM','C','Bimbo, S.A. de C.V.','N/A'),
+(22, '7029', 'Facultad de Estudios Superiores Acatlán', 'M', 'Saúl Lozano Gazga y Miguel Ángel Lozano Gazga', 'L-V 7:00-20:00; S 8:00-14:00');
 
 
 
