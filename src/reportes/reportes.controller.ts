@@ -55,6 +55,7 @@ async create(
   @Get('tipos')
   @UseGuards(AuthGuard('jwt'))
   async buscar() {
+    console.log("ENTRAMOS EN BUSCAR TIPOS");
     return this.reportesService.findAllTipos();
   }
 }

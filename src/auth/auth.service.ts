@@ -34,6 +34,7 @@ export class AuthService {
       relations: ['tipoUsuario'],
     });
     if (!user) throw new UnauthorizedException('Credenciales inválidas');
+    console.log("USUARIO ENCONTRADO EN VALIDATE:", user);
     const match = await bcrypt.compare(user1.pass, user.contraseña);
     if (!match) throw new UnauthorizedException('Credenciales inválidas');
     return user;
@@ -42,6 +43,23 @@ export class AuthService {
   // 2) Genera el JWT
   async login(user1: LoginDto) {
     let user = await this.validateUser(user1);
+    if (!user) throw new UnauthorizedException('Credenciales inválidas');
+    const payload = {
+      sub: user.id_usuario,
+      email: user.correo_electronico,
+      tipo: user.tipoUsuario.tipoUsuario,
+    };
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
+  }
+
+  async loginGoogle(user1: LoginDto) {
+    let user = await this.userRepo.findOne({
+      where: { correo_electronico: user1.email },
+      relations: ['tipoUsuario'],
+    });;
+    
     if (!user) throw new UnauthorizedException('Credenciales inválidas');
     const payload = {
       sub: user.id_usuario,

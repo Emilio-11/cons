@@ -15,7 +15,6 @@ import { RegisterDto } from './dto/register.dto';
 
 import type { Response } from 'express';
 
-import { GoogleAuthGuard } from './google-auth.guard';
 import { LoginDto } from './dto/login-auth.dto';
 
 interface Update {
@@ -86,7 +85,7 @@ export class AuthController {
 
   // auth.controller.ts
   @Get('google/callback')
-  @UseGuards(GoogleAuthGuard)
+  @UseGuards(AuthGuard('google'))
   async googleCallback(@Req() req, @Res() res: Response) {
     const user = req.user;
 
@@ -97,7 +96,7 @@ export class AuthController {
       );
     }
 
-    const jwt = await this.authService.login(user);
+    const jwt = await this.authService.loginGoogle(user);
 
     return res.redirect(
       `${process.env.FRONTEND_URL}/oauth-callback?token=${jwt.access_token}`,

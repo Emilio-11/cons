@@ -7,6 +7,7 @@ import { UsuariosModule } from './usuarios/usuarios.module';
 import { ConsecionariasModule } from './consecionarias/consecionarias.module';
 import { ReportesModule } from './reportes/reportes.module';
 import { AuthModule } from './auth/auth.module';
+import { GoogleDriveModule } from './google-drive/google-drive.module';
 
 @Module({
   imports: [
@@ -34,6 +35,8 @@ import { AuthModule } from './auth/auth.module';
     ReportesModule,
 
     AuthModule,
+    
+    GoogleDriveModule
   ],
   controllers: [AppController],
   providers: [AppService],
