@@ -5,6 +5,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Reporte } from './entities/reporte.entity';
 import { And, Between, Repository } from 'typeorm';
 import { TipoReporte } from './entities/tipo-reporte.entity';
+import { FiltroReporteDto } from './dto/find-reporte.dto';
+import { Estado } from './entities/estado.entity';
 
 @Injectable()
 export class ReportesService {
@@ -16,6 +18,8 @@ export class ReportesService {
     private readonly reporteRepo: Repository<Reporte>,
     @InjectRepository(TipoReporte)
     private readonly tipoReporte: Repository<TipoReporte>,
+    @InjectRepository(Estado)
+    private readonly estadoReporte: Repository<Estado>,
   ) {
 
     // Aquí usas el refresh token generado manualmente
@@ -99,84 +103,197 @@ export class ReportesService {
     return await this.tipoReporte.find();
   }
 
+  async findAllEstados() {
+    return await this.estadoReporte.find();
+  }
+
   async findByUser(idUser: number) {
-    let reporte= await this.reporteRepo.find({where:{usuario:{id_usuario:idUser}}, relations:['concesionaria','estado','tipoReporte']})
-    if(!reporte){
+    let reporte = await this.reporteRepo.find({ where: { usuario: { id_usuario: idUser } }, relations: ['concesionaria', 'estado', 'tipoReporte'] })
+    if (!reporte) {
       throw new Error('No se encontraron reportes para este usuario');
     }
     return reporte;
 
   }
 
-  async reportesIncidencia () {
-    try{
-      let incidencia= await this.reporteRepo
-      .createQueryBuilder('reporte')
-      .innerJoin('reporte.concesionaria','c')
-      .innerJoin('reporte.tipoReporte','tr')
-      .select('c.numAutorizado','AUT')
-      .addSelect('tr.tipoReporte','tipo de reporte')
-      .addSelect('COUNT * AS TOTAL')
-      .groupBy('c.numAutorizado')
-      .addGroupBy('tr.tipoReporte')
-      .orderBy('DESC')
-      .getMany();
-
-      return incidencia;
-    }catch(err){
-      throw new Error('Error al generar el reporte de incidencias');
-    }
-    
-  }
-  async reportesIncidenciaFecha ( fechaI: Date , fechaF:Date ) {
-    try{
-      let incidencia= await this.reporteRepo
-      .createQueryBuilder('reporte')
-      .innerJoin('reporte.concesionaria','c')
-      .innerJoin('reporte.tipoReporte','tr')
-      .select('c.numAutorizado','AUT')
-      .addSelect('tr.tipoReporte','tipo de reporte')
-      .addSelect('COUNT * AS TOTAL')
-      .where('reporte.fecha_reporte, BETWEEN :inicio AND :fin', {
-        inicio:fechaI,
-        fin:fechaF
-      })
-      .groupBy('c.numAutorizado')
-      .addGroupBy('tr.tipoReporte')
-      .getRawMany();
-      return incidencia;
-    }catch(err){
-      throw new Error('Error al generar el reporte de incidencias');
-    }
-    
-  }
-
-    async reportesUsuarios( id_Concesionaria:number, id_tipoReporte:number){
-      try{
-        let incidencia = await this.reporteRepo
+  async reportesIncidencia() {
+    try {
+      let incidencia = await this.reporteRepo
         .createQueryBuilder('reporte')
-        .innerJoin('reporte.usuario','u')
-        .addSelect('u.correo_electronico','Usuario')
-        .addSelect('reporte.imagen','IMG')
-        .addSelect('reporte.descripcion','Desc')
-        .where('reporte.concesionaria , :consecionaria',{
-          consecionaria:id_Concesionaria
-        })
-        .where('reportes.tipoReporte, :tipoReporte',{
-          tipoReporte:id_tipoReporte
-        } )
-        .getRawMany();
-        return incidencia;
+        .innerJoin('reporte.concesionaria', 'c')
+        .innerJoin('reporte.tipoReporte', 'tr')
+        .select('c.numAutorizado', 'AUT')
+        .addSelect('tr.tipoReporte', 'tipo de reporte')
+        .addSelect('COUNT * AS TOTAL')
+        .groupBy('c.numAutorizado')
+        .addGroupBy('tr.tipoReporte')
+        .orderBy('DESC')
+        .getMany();
 
-      } catch(err){
-        throw new Error('Error al generar el reporte de incidencias');
+      return incidencia;
+    } catch (err) {
+      throw new Error('Error al generar el reporte de incidencias');
     }
-      }
+
+  }
+  async reportesIncidenciaFecha(fechaI: Date, fechaF: Date, estado?: string) {
+    try {
+      let incidencia = await this.reporteRepo
+        .createQueryBuilder('reporte')
+        .innerJoin('reporte.concesionaria', 'c')
+        .innerJoin('reporte.tipoReporte', 'tr')
+        .innerJoin('reporte.estado', 'e')
+        .select('c.numAutorizado', 'AUT')
+        .addSelect('tr.tipoReporte', 'tipo_de_reporte')
+        .addSelect('COUNT(*) AS TOTAL')
+        .where('reporte.fecha_reporte BETWEEN :inicio AND :fin', {
+          inicio: fechaI,
+          fin: fechaF
+        })
+        .andWhere(estado ? 'e.estado = :estado' : '1=1', { estado })
+        .groupBy('c.numAutorizado')
+        .addGroupBy('tr.tipoReporte')
+        .orderBy('TOTAL', 'DESC')
+        .getRawMany();
+      return incidencia;
+    } catch (err) {
+      throw new Error('Error al generar el reporte de incidencias');
+    }
+
+  }
+
+  async reportesUsuarios(id_Concesionaria: number, id_tipoReporte: number) {
+    try {
+      let incidencia = await this.reporteRepo
+        .createQueryBuilder('reporte')
+        .innerJoin('reporte.usuario', 'u')
+        .addSelect('u.correo_electronico', 'Usuario')
+        .addSelect('reporte.imagen', 'IMG')
+        .addSelect('reporte.descripcion', 'Desc')
+        .where('reporte.concesionaria , :consecionaria', {
+          consecionaria: id_Concesionaria
+        })
+        .where('reportes.tipoReporte, :tipoReporte', {
+          tipoReporte: id_tipoReporte
+        })
+        .getRawMany();
+      return incidencia;
+
+    } catch (err) {
+      throw new Error('Error al generar el reporte de incidencias');
+    }
+  }
+
+  async buscarReportes(filtros: FiltroReporteDto) {
+    const page = Number(filtros.page) || 1;
+    const limit = Number(filtros.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const qb = this.reporteRepo.createQueryBuilder('r');
+
+    // =============================
+    // 🔹 FILTROS NORMALES
+    // =============================
+
+    if (filtros.fechaInicio && filtros.fechaFin) {
+      qb.andWhere('r.fecha_reporte BETWEEN :inicio AND :fin', {
+        inicio: filtros.fechaInicio,
+        fin: filtros.fechaFin,
+      });
+    }
+
+    if (filtros.estado) {
+      qb.andWhere('r.estado = :estado', { estado: filtros.estado });
+    }
+
+    if (filtros.tipoReporte) {
+      qb.andWhere('r.tipoReporte = :tipoReporte', {
+        tipoReporte: filtros.tipoReporte,
+      });
+    }
+
+    if (filtros.concesionaria) {
+      qb.andWhere('r.concesionaria = :concesionaria', {
+        concesionaria: filtros.concesionaria,
+      });
+    }
+
+    if (filtros.usuario) {
+      qb.andWhere('r.usuario = :usuario', {
+        usuario: filtros.usuario,
+      });
+    }
+
+    if (filtros.conImagen === true) qb.andWhere('r.imagen IS NOT NULL');
+    if (filtros.conImagen === false) qb.andWhere('r.imagen IS NULL');
+
+    if (filtros.texto) {
+      qb.andWhere('r.descripcion LIKE :texto', {
+        texto: `%${filtros.texto}%`,
+      });
+    }
+
+    // =============================
+    // 🔹 MODO AGRUPADO (ADMIN)
+    // =============================
+    if (filtros.agrupar === true) {
+
+
+
+      qb
+        .innerJoin('r.concesionaria', 'c')
+        .innerJoin('r.tipoReporte', 'tr')
+        .select('c.numAutorizado', 'concesionaria')
+        .addSelect('tr.tipoReporte', 'tipoReporte')
+        .addSelect('COUNT(*)', 'total')
+        .groupBy('c.numAutorizado')
+        .addGroupBy('tr.tipoReporte');
+
+      qb.orderBy('total', filtros.orderTotal || 'DESC');
+
+      const data = await qb.getRawMany();
+
+      return {
+        agrupado: true,
+        data,
+      };
+    }
+
+    // =============================
+    // 🔹 MODO NORMAL (LISTADO)
+    // =============================
+
+    qb
+      .leftJoinAndSelect('r.concesionaria', 'c')
+      .leftJoinAndSelect('r.tipoReporte', 'tr')
+      .leftJoinAndSelect('r.estado', 'e')
+      .leftJoinAndSelect('r.usuario', 'u');
+
+    // 📌 Orden por fecha (default: más reciente)
+    qb.orderBy(
+      'r.fecha_reporte',
+      filtros.orderFecha || 'DESC'
+    );
+
+    qb.skip(skip).take(limit);
+
+    const [data, total] = await qb.getManyAndCount();
+
+    return {
+      agrupado: false,
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+      data,
+    };
+  }
+
 
 }
 
 
-  
+
 
 
 

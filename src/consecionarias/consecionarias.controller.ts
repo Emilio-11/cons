@@ -32,5 +32,10 @@ export class ConsecionariasController {
     return await this.consecionariasService.findOne(id);
   }
 
+  @Get()
+  async findAll() {
+    return await this.consecionariasService.findAll();
+  }
+
 
 }

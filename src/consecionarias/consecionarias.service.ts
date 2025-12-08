@@ -23,4 +23,8 @@ export class ConsecionariasService {
       where: { id_Concesionaria: id },
     });
   }
+
+  async findAll() {
+    return await this.concesionariaRepo.find();
+  }
 }
