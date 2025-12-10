@@ -217,7 +217,7 @@ export class ReportesService {
       usuario: { id_Usuario: idUsuario },
     };
 
-    // ✅ Filtro opcional por estado
+
     if (idEstado) {
       where.estado = { id_Estado: idEstado };
     }
