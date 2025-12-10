@@ -45,6 +45,16 @@ export class FiltroReporteDto {
     @IsOptional()
     @Transform(({ value }) => value === 'true' || value === true)
     @IsBoolean()
+    agruparConsecionaria?: boolean;
+
+    @IsOptional()
+    @Transform(({ value }) => value === 'true' || value === true)
+    @IsBoolean()
+    agruparTipoReporte?: boolean;
+
+    @IsOptional()
+    @Transform(({ value }) => value === 'true' || value === true)
+    @IsBoolean()
     conImagen?: boolean;
 
     @IsOptional()

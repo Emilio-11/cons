@@ -8,12 +8,15 @@ import { ConsecionariasModule } from './consecionarias/consecionarias.module';
 import { ReportesModule } from './reportes/reportes.module';
 import { AuthModule } from './auth/auth.module';
 import { GoogleDriveModule } from './google-drive/google-drive.module';
+import { MailModule } from './mail/mail.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ScheduleModule.forRoot(),
 
     TypeOrmModule.forRoot({
       type: 'mariadb',
@@ -35,10 +38,12 @@ import { GoogleDriveModule } from './google-drive/google-drive.module';
     ReportesModule,
 
     AuthModule,
-    
-    GoogleDriveModule
+
+    GoogleDriveModule,
+
+    MailModule
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

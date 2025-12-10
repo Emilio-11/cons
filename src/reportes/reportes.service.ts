@@ -3,10 +3,11 @@ import { google } from 'googleapis';
 import * as fs from 'fs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Reporte } from './entities/reporte.entity';
-import { And, Between, Repository } from 'typeorm';
+import { In, Between, Repository } from 'typeorm';
 import { TipoReporte } from './entities/tipo-reporte.entity';
 import { FiltroReporteDto } from './dto/find-reporte.dto';
 import { Estado } from './entities/estado.entity';
+import * as ExcelJS from 'exceljs';
 
 @Injectable()
 export class ReportesService {
@@ -184,6 +185,61 @@ export class ReportesService {
     }
   }
 
+  async cambiarEstado(idReporte: number, idEstado: number) {
+    const reporte = await this.reporteRepo.findOneBy({ id_Reporte: idReporte });
+    if (!reporte) {
+      throw new Error('Reporte no encontrado');
+    }
+
+    reporte.estado = { id_Estado: idEstado } as Estado;
+    return await this.reporteRepo.save(reporte);
+  }
+
+  async cambiarVariosEstados(idsReporte: number[], idEstado: number) {
+    const reportes = await this.reporteRepo.findBy({ id_Reporte: In(idsReporte) });
+    if (reportes.length === 0) {
+      throw new Error('No se encontraron reportes');
+    }
+
+    for (const reporte of reportes) {
+      reporte.estado = { id_Estado: idEstado } as Estado;
+    }
+
+    return await this.reporteRepo.save(reportes);
+  }
+
+
+  async findByUsuario(
+    idUsuario: number,
+    idEstado?: number,
+  ) {
+    const where: any = {
+      usuario: { id_Usuario: idUsuario },
+    };
+
+    // ✅ Filtro opcional por estado
+    if (idEstado) {
+      where.estado = { id_Estado: idEstado };
+    }
+
+    return await this.reporteRepo.find({
+      where,
+      relations: {
+        estado: true,
+        usuario: true,
+      },
+      order: {
+        fecha_reporte: 'DESC',
+      },
+    });
+  }
+
+
+
+
+
+
+
   async buscarReportes(filtros: FiltroReporteDto) {
     const page = Number(filtros.page) || 1;
     const limit = Number(filtros.limit) || 10;
@@ -237,17 +293,25 @@ export class ReportesService {
     // 🔹 MODO AGRUPADO (ADMIN)
     // =============================
     if (filtros.agrupar === true) {
+      if (filtros.agruparConsecionaria) {
+        qb
+          .innerJoin('r.concesionaria', 'c')
+          .addSelect('c.numAutorizado', 'concesionaria')
+          .addSelect('COUNT(*)', 'total')
+          .addGroupBy('c.numAutorizado');
+
+      }
+
+      if (filtros.agruparTipoReporte) {
+        qb
+          .innerJoin('r.tipoReporte', 'tr')
+          .addSelect('tr.tipoReporte', 'tipoReporte')
+          .addSelect('COUNT(*)', 'total')
+          .addGroupBy('tr.tipoReporte');
+
+      }
 
 
-
-      qb
-        .innerJoin('r.concesionaria', 'c')
-        .innerJoin('r.tipoReporte', 'tr')
-        .select('c.numAutorizado', 'concesionaria')
-        .addSelect('tr.tipoReporte', 'tipoReporte')
-        .addSelect('COUNT(*)', 'total')
-        .groupBy('c.numAutorizado')
-        .addGroupBy('tr.tipoReporte');
 
       qb.orderBy('total', filtros.orderTotal || 'DESC');
 
@@ -288,6 +352,38 @@ export class ReportesService {
       data,
     };
   }
+
+  async dataReporteEcxcel(): Promise<Buffer> {
+    const qb = this.reporteRepo.createQueryBuilder('r');
+
+    qb.innerJoin('r.concesionaria', 'c')
+      .innerJoin('r.tipoReporte', 'tr')
+      .select('c.numAutorizado', 'concesionaria')
+      .addSelect('tr.tipoReporte', 'tipoReporte')
+      .addSelect('COUNT(*)', 'total')
+      .groupBy('c.numAutorizado')
+      .addGroupBy('tr.tipoReporte')
+      .orderBy('total', 'DESC');
+
+    const data = await qb.getRawMany();
+
+    // 🔹 Crear Excel
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet('Reporte semanal');
+
+    sheet.columns = [
+      { header: 'Concesionaria', key: 'concesionaria', width: 20 },
+      { header: 'Tipo Reporte', key: 'tipoReporte', width: 25 },
+      { header: 'Total', key: 'total', width: 10 },
+    ];
+
+    data.forEach(row => sheet.addRow(row));
+
+    // 🔹 Regresar como buffer
+    const buffer = await workbook.xlsx.writeBuffer();
+    return Buffer.from(buffer);
+  }
+
 
 
 }
