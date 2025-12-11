@@ -38,19 +38,8 @@ export class FiltroReporteDto {
     usuario?: number;
 
     @IsOptional()
-    @Transform(({ value }) => value === 'true' || value === true)
-    @IsBoolean()
-    agrupar?: boolean;
-
-    @IsOptional()
-    @Transform(({ value }) => value === 'true' || value === true)
-    @IsBoolean()
-    agruparConsecionaria?: boolean;
-
-    @IsOptional()
-    @Transform(({ value }) => value === 'true' || value === true)
-    @IsBoolean()
-    agruparTipoReporte?: boolean;
+    @IsString()
+    agrupar?: string;
 
     @IsOptional()
     @Transform(({ value }) => value === 'true' || value === true)

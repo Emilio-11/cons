@@ -289,11 +289,9 @@ export class ReportesService {
       });
     }
 
-    // =============================
-    // 🔹 MODO AGRUPADO (ADMIN)
-    // =============================
-    if (filtros.agrupar === true) {
-      if (filtros.agruparConsecionaria) {
+
+    if (filtros.agrupar == "concesionaria" || filtros.agrupar == "tipo" || filtros.agrupar == "ambos") {
+      if (filtros.agrupar == "ambos" || filtros.agrupar == "concesionaria") {
         qb
           .innerJoin('r.concesionaria', 'c')
           .addSelect('c.numAutorizado', 'concesionaria')
@@ -302,7 +300,7 @@ export class ReportesService {
 
       }
 
-      if (filtros.agruparTipoReporte) {
+      if (filtros.agrupar == "ambos" || filtros.agrupar == "tipo") {
         qb
           .innerJoin('r.tipoReporte', 'tr')
           .addSelect('tr.tipoReporte', 'tipoReporte')
@@ -323,9 +321,7 @@ export class ReportesService {
       };
     }
 
-    // =============================
-    // 🔹 MODO NORMAL (LISTADO)
-    // =============================
+
 
     qb
       .leftJoinAndSelect('r.concesionaria', 'c')
