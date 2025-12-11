@@ -129,6 +129,7 @@ export class AuthService {
       where: { correo_electronico: email },
       relations: ['tipoUsuario'],
     });
+    console.log("USUARIO GOOGLE ENCONTRADO:", user);
 
     if (!user || user.contraseña == null) {
       let id;
