@@ -59,13 +59,14 @@ export class AuthService {
       where: { correo_electronico: user1.email },
       relations: ['tipoUsuario'],
     });;
-    
+
     if (!user) throw new UnauthorizedException('Credenciales inválidas');
     const payload = {
       sub: user.id_usuario,
       email: user.correo_electronico,
       tipo: user.tipoUsuario.tipoUsuario,
     };
+    console.log("PAYLOAD GOOGLE:", payload);
     return {
       access_token: this.jwtService.sign(payload),
     };
@@ -137,7 +138,7 @@ export class AuthService {
         id = 3;
       }
 
-
+      console.log("Tipo de usuario asignado:", id);
 
       let user = await this.userRepo.save({ correo_electronico: email, tipoUsuario: { id_tipoUsuario: id } });
 
